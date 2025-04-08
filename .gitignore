@@ -3,6 +3,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+C:/invisible-assistant/screenshots
 
 ### STS ###
 .apt_generated
