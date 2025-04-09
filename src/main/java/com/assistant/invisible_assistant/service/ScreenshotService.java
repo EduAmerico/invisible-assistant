@@ -41,10 +41,10 @@ public class ScreenshotService {
         Session session = sessionService.getCurrentSession();
 
         Screenshot shot = new Screenshot();
-        shot.setFilePath(file.getAbsolutePath());
+        shot.setFilePath(file.getName());
         shot.setCapturedAt(LocalDateTime.now());
         shot.setSession(session);
-
+        session.getScreenshots().add(shot);
         screenshotRepository.save(shot);
 
         return file;

@@ -2,6 +2,7 @@ package com.assistant.invisible_assistant.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -13,9 +14,9 @@ public class Session {
 
     private LocalDateTime startedAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
-    private List<Screenshot> screenshots;
-
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<Screenshot> screenshots = new ArrayList<>();
+    
     @OneToOne(mappedBy = "session", cascade = CascadeType.ALL)
     private GPTResponse response;
 
@@ -50,6 +51,5 @@ public class Session {
     public void setResponse(GPTResponse response) {
         this.response = response;
     }
-
 
 }
