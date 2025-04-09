@@ -19,7 +19,7 @@ public class SessionViewController {
 public String viewSession(Model model) {
     Session refreshed = sessionService.getCurrentSessionWithScreenshots();
     System.out.println("Screenshots count in controller: " + refreshed.getScreenshots().size());
-    model.addAttribute("session", refreshed);
+    model.addAttribute("userSession", refreshed);
     return "home";
 }
 }
