@@ -1,4 +1,4 @@
-package com.assistant.invisible_assistant;
+package com.assistant.invisible_assistant.service;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
