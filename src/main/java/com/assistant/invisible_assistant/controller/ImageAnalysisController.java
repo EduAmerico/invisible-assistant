@@ -2,6 +2,8 @@ package com.assistant.invisible_assistant.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.assistant.invisible_assistant.service.GPTClientService;
 
@@ -19,12 +21,13 @@ public class ImageAnalysisController {
     }
 
     @GetMapping("/analyze-latest")
-    public String analyzeLatestScreenshot() {
+    public RedirectView analyzeLatestScreenshot(RedirectAttributes redirectAttributes) {
         File screenshotsDir = new File("screenshots");
 
         File[] files = screenshotsDir.listFiles((dir, name) -> name.endsWith(".png"));
         if (files == null || files.length == 0) {
-            return "Nenhuma imagem encontrada na pasta /screenshots.";
+            redirectAttributes.addFlashAttribute("errorMessage", "Nenhuma imagem encontrada na pasta /screenshots.");
+            return new RedirectView("/view");
         }
 
         File latest = Arrays.stream(files)
@@ -32,9 +35,11 @@ public class ImageAnalysisController {
                 .orElse(null);
 
         if (latest == null) {
-            return "Erro ao encontrar a imagem mais recente.";
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao encontrar a imagem mais recente.");
+            return new RedirectView("/view");
         }
 
-        return gptClientService.analyzeImage(latest);
+        gptClientService.analyzeImage(latest);
+        return new RedirectView("/view");
     }
 }

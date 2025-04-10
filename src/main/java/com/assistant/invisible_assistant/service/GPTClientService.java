@@ -22,47 +22,50 @@ public class GPTClientService {
     private String apiKey;
 
     public String analyzeImage(File imageFile) {
-    try {
+        try {
+            byte[] imageBytes = Files.readAllBytes(imageFile.toPath());
+            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
 
-        byte[] imageBytes = Files.readAllBytes(imageFile.toPath());
-        String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+            JSONObject imageContent = new JSONObject()
+                .put("type", "image_url")
+                .put("image_url", new JSONObject().put("url", "data:image/png;base64," + base64Image));
 
-        JSONObject imageContent = new JSONObject()
-            .put("type", "image_url")
-            .put("image_url", new JSONObject().put("url", "data:image/png;base64," + base64Image));
+            JSONObject promptContent = new JSONObject()
+                .put("type", "text")
+                .put("text", "Analyze this image and give me the code to solve the problem. Format your response with markdown for code blocks.");
 
-        JSONObject promptContent = new JSONObject()
-            .put("type", "text")
-            .put("text", "Explique o conteúdo desta imagem como se fosse um problema de programação.");
+            JSONArray content = new JSONArray().put(imageContent).put(promptContent);
 
-        JSONArray content = new JSONArray().put(imageContent).put(promptContent);
+            JSONArray messages = new JSONArray()
+                .put(new JSONObject()
+                    .put("role", "user")
+                    .put("content", content));
 
-        JSONArray messages = new JSONArray()
-            .put(new JSONObject()
-                .put("role", "user")
-                .put("content", content));
+            JSONObject requestBody = new JSONObject()
+                .put("model", "gpt-4-vision-preview")
+                .put("messages", messages)
+                .put("max_tokens", 1000);
 
-        JSONObject requestBody = new JSONObject()
-            .put("model", "gpt-4-turbo")
-            .put("messages", messages)
-            .put("max_tokens", 1000);
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.openai.com/v1/chat/completions"))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + apiKey)
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString()))
+                .build();
 
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://api.openai.com/v1/chat/completions"))
-            .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer " + apiKey)
-            .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString()))
-            .build();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        HttpClient client = HttpClient.newHttpClient();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        return response.body();
-
-    } catch (IOException | InterruptedException e) {
-        e.printStackTrace();
-        return "Erro ao processar a imagem ou enviar para a OpenAI.";
+            // Se tivermos uma resposta de sucesso
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                return response.body();
+            } else {
+                System.err.println("Erro API OpenAI: " + response.statusCode() + " - " + response.body());
+                return "{\"error\":\"Erro API OpenAI: " + response.statusCode() + "\"}";
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return "{\"error\":\"" + e.getMessage().replace("\"", "\\\"") + "\"}";
+        }
     }
-}
-
 }

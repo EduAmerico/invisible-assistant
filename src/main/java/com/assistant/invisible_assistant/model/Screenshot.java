@@ -12,6 +12,7 @@ public class Screenshot {
 
     private String filePath;
     private LocalDateTime capturedAt = LocalDateTime.now();
+    private boolean analyzed = false; // Indica se a screenshot já foi analisada pela IA
 
     @ManyToOne
     @JoinColumn(name = "session_id")
@@ -49,5 +50,11 @@ public class Screenshot {
         this.session = session;
     }
     
+    public boolean isAnalyzed() {
+        return analyzed;
+    }
     
+    public void setAnalyzed(boolean analyzed) {
+        this.analyzed = analyzed;
+    }
 }

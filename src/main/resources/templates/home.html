@@ -5,30 +5,62 @@
     <meta charset="UTF-8">
     <title>Visualizador de Sessão</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .analyzed-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+        }
+        .shortcut-help {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+        .controls {
+            position: sticky;
+            top: 0;
+            background-color: rgba(33, 37, 41, 0.9);
+            padding: 15px;
+            border-radius: 0 0 10px 10px;
+            margin-bottom: 20px;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 
 <body class="bg-dark text-light">
-    <div class="container mt-4">
-        <h1 class="mb-3">Informações de Depuração</h1>
-        <p>Thymeleaf está funcionando: Sim!</p>
+    <div class="container mt-4 mb-5">
+        <div class="controls">
+            <h1 class="mb-3">📸 Assistente Invisível</h1>
+            <div class="d-flex gap-2">
+                <a href="/screenshot" class="btn btn-primary">Tirar Screenshot</a>
+                <a href="/analyze-batch" class="btn btn-success">Analisar Novas Screenshots</a>
+                <a href="/view" class="btn btn-info">Atualizar Página</a>
+            </div>
+        </div>
         
-        <!-- Use userSession em vez de session -->
-        <p>Objeto de sessão existe: <span th:text="${userSession != null}">Desconhecido</span></p>
-        <p>ID da Sessão: <span th:text="${userSession != null ? userSession.id : 'Sem sessão'}">Desconhecido</span></p>
-        <p>Lista de screenshots existe: <span th:text="${userSession != null && userSession.screenshots != null}">Desconhecido</span></p>
-        <p>Total de screenshots: <span th:text="${userSession != null && userSession.screenshots != null ? userSession.screenshots.size() : 0}">0</span></p>
+        <div class="alert alert-info mt-3">
+            <p>Total de screenshots: <span th:text="${userSession != null && userSession.screenshots != null ? userSession.screenshots.size() : 0}">0</span></p>
+            <p>Screenshots não analisadas: <span th:text="${userSession != null && userSession.screenshots != null ? userSession.screenshots.stream().filter(shot -> !shot.analyzed).count() : 0}">0</span></p>
+        </div>
         
-        <hr class="my-4" />
-        
-        <h1 class="mb-3">📸 Screenshots da Sessão</h1>
+        <h2 class="mb-3">Screenshots da Sessão</h2>
         
         <div th:if="${userSession != null && userSession.screenshots != null && !userSession.screenshots.isEmpty()}">
             <div class="row row-cols-1 row-cols-md-2 g-4">
                 <div class="col" th:each="shot : ${userSession.screenshots}">
-                    <div class="card bg-secondary text-light">
+                    <div class="card bg-secondary text-light position-relative">
+                        <span th:if="${shot.analyzed}" class="badge bg-success analyzed-badge">Analisada</span>
+                        <span th:unless="${shot.analyzed}" class="badge bg-warning analyzed-badge">Não analisada</span>
                         <div class="card-body">
                             <p class="card-text">
-                                <strong>Capturado em:</strong> <span th:text="${shot.capturedAt}">Data</span><br/>
+                                <strong>Capturado em:</strong> <span th:text="${#temporals.format(shot.capturedAt, 'dd/MM/yyyy HH:mm:ss')}">Data</span><br/>
                                 <strong>Caminho do arquivo:</strong> <span th:text="${shot.filePath}">Caminho</span>
                             </p>
                             <img th:src="@{'/screenshots/' + ${shot.filePath}}" class="img-fluid rounded" alt="Screenshot" />
@@ -45,12 +77,23 @@
 
         <h2>🧠 Resposta GPT</h2>
         <div th:if="${userSession != null && userSession.response != null}">
-            <pre class="bg-light text-dark p-3 rounded" th:text="${userSession.response.content}">Resposta</pre>
+            <div class="bg-light text-dark p-3 rounded">
+                <pre style="white-space: pre-wrap;" th:text="${userSession.response.content}">Resposta</pre>
+            </div>
         </div>
         <div th:if="${userSession == null || userSession.response == null}">
-            <p class="text-muted">Nenhuma resposta ainda.</p>
+            <p class="text-muted">Nenhuma resposta ainda. Use o botão "Analisar Novas Screenshots" para analisar as screenshots não processadas.</p>
         </div>
     </div>
+    
+    <div class="shortcut-help">
+        <p class="mb-0 text-light"><strong>Atalho:</strong> Win + Alt + S para tirar screenshot</p>
+    </div>
+    
+    <script>
+        // Auto-refresh a cada 30 segundos (opcional)
+        //setTimeout(function() { window.location.reload(); }, 30000);
+    </script>
 </body>
 
 </html>
