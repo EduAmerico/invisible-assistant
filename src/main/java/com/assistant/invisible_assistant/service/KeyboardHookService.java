@@ -1,6 +1,7 @@
 package com.assistant.invisible_assistant.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,15 +16,14 @@ import jakarta.annotation.PreDestroy;
 @Service
 public class KeyboardHookService implements NativeKeyListener {
     
-    private final ScreenshotService screenshotService;
+
     private final RestTemplate restTemplate;
-    
     private boolean winPressed = false;
     private boolean altPressed = false;
+    private static final Logger logger = LoggerFactory.getLogger(KeyboardHookService.class);
+
     
-    @Autowired
     public KeyboardHookService(ScreenshotService screenshotService) {
-        this.screenshotService = screenshotService;
         this.restTemplate = new RestTemplate();
     }
     
@@ -72,9 +72,9 @@ public class KeyboardHookService implements NativeKeyListener {
         try {
             // Faz uma requisição local para o endpoint /screenshot
             String response = restTemplate.getForObject("http://localhost:8080/screenshot", String.class);
-            System.out.println("Screenshot taken via shortcut: " + response);
+            logger.info("Screenshot taken via shortcut: {}", response);
         } catch (Exception e) {
-            System.err.println("Error taking screenshot via shortcut: " + e.getMessage());
+            logger.error("Error taking screenshot via shortcut", e);
         }
     }
 }

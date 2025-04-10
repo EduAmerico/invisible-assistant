@@ -42,7 +42,7 @@ public class GPTClientService {
                     .put("content", content));
 
             JSONObject requestBody = new JSONObject()
-                .put("model", "gpt-4-vision-preview")
+                .put("model", "gpt-4-turbo")
                 .put("messages", messages)
                 .put("max_tokens", 1000);
 

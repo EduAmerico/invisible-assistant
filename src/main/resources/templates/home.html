@@ -47,7 +47,7 @@
         
         <div class="alert alert-info mt-3">
             <p>Total de screenshots: <span th:text="${userSession != null && userSession.screenshots != null ? userSession.screenshots.size() : 0}">0</span></p>
-            <p>Screenshots não analisadas: <span th:text="${userSession != null && userSession.screenshots != null ? userSession.screenshots.stream().filter(shot -> !shot.analyzed).count() : 0}">0</span></p>
+            <p>Screenshots não analisadas: <span th:text="${userSession != null && userSession.screenshots != null ? userSession.screenshots.?[!analyzed].size() : 0}">0</span>
         </div>
         
         <h2 class="mb-3">Screenshots da Sessão</h2>

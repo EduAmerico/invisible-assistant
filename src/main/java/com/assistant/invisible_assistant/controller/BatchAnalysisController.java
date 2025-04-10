@@ -2,8 +2,6 @@ package com.assistant.invisible_assistant.controller;
 
 import java.io.File;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
